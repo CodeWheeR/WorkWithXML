@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using System.Xml.XPath;
 
 namespace Selialization
 {
@@ -39,6 +40,17 @@ namespace Selialization
 
 			users.Add(
 				new XElement("User",
+					new XAttribute("Name", "Jenya"),
+					new XAttribute("Age", 19),
+					new XElement("Company",
+						new XAttribute("Name", "CHSU Opornyi Vys"),
+						new XElement("Founder", "Afanasyev")
+					)
+				)
+			);
+
+			users.Add(
+				new XElement("User",
 					new XAttribute("Name", "Filya"),
 					new XAttribute("Age", 25),
 					new XAttribute("LevelOfLazyness", 1547913547841325),
@@ -53,6 +65,8 @@ namespace Selialization
 			//Выборка с помощью LINQ
 
 			XDocument doc2 = XDocument.Load("Users2.xml");
+			XElement root = doc2.Root;
+
 			foreach (var i in doc2.Root.Elements("User"))
 			{
 				Trace.WriteLine($"{i.Attribute("Name").Value} ({i.Attribute("Age").Value} лет) - Компания {i.Element("Company").Attribute("Name").Value}");
@@ -61,13 +75,13 @@ namespace Selialization
 
 			var sw = new Stopwatch();
 			sw.Start();
-			Trace.WriteLine(doc2.Root
-				.Elements("User")
-				.SelectMany(x => x.Elements("Company")
-					.Select(y => y.Attribute("Name").Value)
-				)
+			string s = doc2.Root
+				.XPathSelectElements("//Company")
+				.Select(y => y.Attribute("Name").Value)				
 				.Distinct()
-				.Aggregate((x, y) => $"{x}, {y}"));
+				.Aggregate((x, y) => $"{x}, {y}");
+
+			Trace.WriteLine(s);
 
 			Trace.WriteLine(sw.ElapsedTicks);
 			sw.Stop();
